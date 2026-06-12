@@ -1,5 +1,22 @@
 # otcg-client
 
+To connect to server use:
+
+```
+http://<ip:port>/?<option>&...
+```
+
+## Options
+
+| option | description |
+|--------|-------------|
+| `queue`  | play in queue mode |
+| `lobby=<i32>` | play in lobby mode |
+| `address=<ip:port>` | address of otcg server |
+| `watcher` | watch game (only in lobby mode) |
+
+# Vue help
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup

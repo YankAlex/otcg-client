@@ -11,7 +11,7 @@
         </span>
       </div>
 
-      <div v-if="['Spell', 'Gear', 'Rune', 'Battlefield'].indexOf(card.type ?? '') == -1" class="might">
+      <div v-if="['Spell', 'Gear', 'Rune', 'Battlefield', 'attack', 'defence', 'versatile', 'scheme'].indexOf(card.type ?? '') == -1" class="might">
         <span class="power"> {{card.power}} </span>
         <span class="health"> {{card.health}} </span>
       </div>

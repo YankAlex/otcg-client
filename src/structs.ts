@@ -194,7 +194,7 @@ export function getColor(strs: Array<string>): string {
       case "proud":
       case "yellow":
       case "shurima":
-        colors.push("#d2b501");
+        colors.push("#8f892c");
         break;
       case "&":
       case "calm":

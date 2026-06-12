@@ -165,6 +165,7 @@ export default {
     goInQueue() {
       this.ws.onmessage = (message) => {
         if (message.data == '"background_request"') {
+          /*
           this.ws.send(`
           {
               "piles": {
@@ -195,6 +196,8 @@ export default {
               }
           }
           `);
+          */
+          this.ws.send(prompt("Which background play?") ?? "{}")
           return;
         }
         let data = JSON.parse(message.data);

@@ -1,5 +1,11 @@
 <template>
-  <div class="card-inner card-inner-visible" v-if="card.visible_to_me">
+  <div class="card-inner card-inner-visible" v-if="showCardPictures && card.card_picture_url != undefined && card.card_picture_url?.replaceAll(' ', '') != ''" >
+    <img 
+      class="card-picture"
+      :src="card.card_picture_url"
+    />
+  </div>
+  <div class="card-inner card-inner-visible" v-else-if="card.visible_to_me">
     <div class="top-part">
       <div v-if="['main'].indexOf(card.nature ?? '') != -1" class="cost">
         <span class="cost-span"> {{card.cost}} </span>
@@ -40,6 +46,7 @@
   import { getColor, type Card } from '@/structs';
   import type { PropType } from 'vue';
   import { marked } from 'marked';
+import { getViewCardPictures } from '@/sharedReactive';
 
   export default {
     props: {
@@ -68,10 +75,16 @@
         if (colors.length == 0) return this.bgrColorDarker;
         return getColor(colors);
       },
+      showCardPictures() {
+        return getViewCardPictures();
+      },
       width() {
         return this.size + "px";
       },
       borderWidth() {
+        if (this.card.card_picture_url != undefined && this.card.card_picture_url.replaceAll(" ", "") != "") {
+          return (this.size / 40) + "px";
+        }
         return (this.size / 20) + "px";
       },
       smallPadding() {
@@ -84,6 +97,9 @@
         return (this.size / 160) + "px";
       },
       borderRadius() {
+        if (this.card.card_picture_url != undefined && this.card.card_picture_url.replaceAll(" ", "") != "") {
+          return (this.size * 0.08) + "px";
+        }
         return (this.size * 0.10) + "px";
       },
       innerRadius() {
@@ -143,6 +159,16 @@
 </script>
 
 <style>
+
+.card-picture {
+  border-radius: v-bind(innerRadius);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  object-fit: cover;
+  object-position: 50% 50%;
+  pointer-events: none;
+}
 
 .art {
   border-radius: v-bind(innerRadius) v-bind(innerRadius) 0px 0px;
@@ -255,22 +281,24 @@ span {
   align-items: center;
   justify-content: space-between;
   position: absolute;
-  border-radius: 50% v-bind(innerRadius) 50% 50%;
+  border-radius: v-bind(costWidth) v-bind(innerRadius) v-bind(costWidth) v-bind(costWidth);
   top: v-bind(costCoord);
   right: v-bind(costCoord);
-  width: v-bind(costWidth);
+  min-width: v-bind(costWidth);
   height: v-bind(costWidth);
   padding: v-bind(smallPadding);
   background-color: v-bind(bgrColor);
   z-index: 10;
   box-shadow: v-bind(shadow);
 }
+
 .power {
   font-family: 'FiraCode';
   font-size: v-bind(middleFont);
   background: v-bind(accentBackground);
   border-radius: v-bind(middleFont);
   box-shadow: v-bind(shadow);
+  margin-right: v-bind(smallPadding);
  /* outline: v-bind(tootooSmallPadding) solid black;*/
 }
 
@@ -350,8 +378,9 @@ span {
   position: absolute;
   border-radius: v-bind(nameFontHalf) 0 0 v-bind(nameFontHalf);
   background: v-bind(accentBackground);
-  width: v-bind(nameFont);
+  min-width: v-bind(nameFont);
   bottom: v-bind(smallPadding);
+  padding-left: v-bind(tooSmallPadding);
   right: 0px;
   text-align: center;
   z-index: 10;

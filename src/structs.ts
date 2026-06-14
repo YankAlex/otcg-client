@@ -53,6 +53,7 @@ export function newPlayerArea(): PlayerArea {
     hand: newPile(false, "private"),
     main_deck: newPile(true, "secret"),
     mana_deck: newPile(true, "secret"),
+    additional_deck: newPile(true, "secret"),
     mana_pool: newPile(false, "public"),
     trash_deck: newPile(false, "public"),
     special_zone: newPile(false, "public"),
@@ -212,6 +213,9 @@ export function getColor(strs: Array<string>): string {
       case "purple":
       case "abyss":
         colors.push("#480d5c");
+        break;
+      default:
+        colors.push(str);
         break;
     }
   }

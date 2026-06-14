@@ -7,6 +7,7 @@
       <button class="control-button" @click="createCardDialog"> Create card </button>
       <button class="control-button" @click="createChipDialog"> Create chip</button>
       <button class="control-button" @click="reloadGame"> Reload </button>
+      <button class="control-button" @click="toggleCardPictures"> Toggle pictures </button>
     </div>
     <OtcgBoard
       :board
@@ -53,6 +54,7 @@
   import OtcgDeck from './OtcgDeck.vue';
   import OtcgBoard from './OtcgBoard.vue';
 import type { PropType } from 'vue';
+import { toggleViewCardPictures } from '@/sharedReactive';
   export default {
     components: {OtcgDeck, OtcgCard, OtcgBoard},
     props: {
@@ -137,8 +139,11 @@ import type { PropType } from 'vue';
       createChipDialog() {
           let name = prompt("Type creating chip name");
           if (name != null) {
-            this.ws.send(JSON.stringify({create_chip: {name: name, coordinates: {x: 0, y: 0}, destination: {index: 0, board: { name: "board" }}}}));
+            this.ws.send(JSON.stringify({create_chip: {name: name, coordinates: {x: 0, y: 0}, destination: {index: -1, board: { name: "board" }}}}));
           }
+      },
+      toggleCardPictures() {
+        toggleViewCardPictures();
       },
       createCardDialog() {
           let name = prompt("Type creating card name");

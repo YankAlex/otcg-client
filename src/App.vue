@@ -109,6 +109,11 @@ export default {
           if (Object.hasOwn(this.player_areas[pilePointer.player - 1], pilePointer.type.name)) {
             // @ts-ignore
             return fun(this.player_areas[pilePointer.player - 1][pilePointer.type.name]);
+          } else {
+            // @ts-ignore
+            this.player_areas[pilePointer.player - 1][pilePointer.type.name] = newPile(false, "secret");
+            // @ts-ignore
+            return fun(this.player_areas[pilePointer.player - 1][pilePointer.type.name]);
           }
         }
       } else if (Object.hasOwn(pilePointer.type, "battlefield")) {

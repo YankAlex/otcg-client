@@ -59,6 +59,9 @@
               @click.stop="moveMeTo({index: 0, pile: {player: mainPlayer, type: {name: 'main_deck'}}})"
           > <code> to main deck </code> </button>
           <button class="changes-button" 
+              @click.stop="shuffleMeTo({player: mainPlayer, type: {name: 'main_deck'}})"
+          > <code> shuffle to main deck </code> </button>
+          <button class="changes-button" 
               @click.stop="moveMeTo({index: -1, pile: {player: mainPlayer, type: {name: 'mana_deck'}}})"
           > <code> to mana deck </code> </button>
           <button class="changes-button" 
@@ -129,7 +132,7 @@
 
 <script lang="ts">
   import type { PropType } from 'vue';
-  import { getColor, type Card, type CardPointer } from '@/structs.ts';
+  import { getColor, type Card, type CardPointer, type PilePointer } from '@/structs.ts';
   import OtcgCardView from './OtcgCardView.vue';
   import { getBattlefieldsCount, getMainPlayer } from '@/sharedReactive.ts'
 
@@ -280,6 +283,14 @@
       moveMeTo(targetPointer: CardPointer) {
         this.server?.send(JSON.stringify({
           move_card: {
+            source: this.pointer,
+            destination: targetPointer,
+          }
+        }));
+      },
+      shuffleMeTo(targetPointer: PilePointer) {
+        this.server?.send(JSON.stringify({
+          shuffle_card_to_pile: {
             source: this.pointer,
             destination: targetPointer,
           }

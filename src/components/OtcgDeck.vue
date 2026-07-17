@@ -11,6 +11,7 @@
       :style="draggedOverStyle"
   >
     <span class="deck-name"> {{Object.values(pointer.type)[0]}} </span>
+    <em class="deck-info"> [{{deck.cards.length}}] </em>
     <div class="deck">
       <TransitionGroup name="deck-group">
       <OtcgCard 
@@ -161,7 +162,17 @@
   color: #ddd;
   position: absolute;
   top: 10px;
-  left: 3vh;
+  left: 2vh;
+  font-size: 2vh;
+}
+
+.deck-info {
+  user-select: none;
+  color: #ddd;
+  position: absolute;
+  top: -2vh;
+  width: v-bind(width);
+  text-align: center;
   font-size: 2vh;
 }
 

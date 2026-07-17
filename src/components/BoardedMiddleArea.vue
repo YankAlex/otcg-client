@@ -8,6 +8,7 @@
       <button class="control-button" @click="createChipDialog"> Create chip</button>
       <button class="control-button" @click="reloadGame"> Reload </button>
       <button class="control-button" @click="toggleCardPictures"> Toggle pictures </button>
+      <button class="control-button" @click="changeBoardImage"> Change board img </button>
     </div>
     <OtcgBoard
       :board
@@ -53,8 +54,8 @@
   import OtcgCard from './OtcgCard.vue';
   import OtcgDeck from './OtcgDeck.vue';
   import OtcgBoard from './OtcgBoard.vue';
-import type { PropType } from 'vue';
-import { toggleViewCardPictures } from '@/sharedReactive';
+  import type { PropType } from 'vue';
+  import { toggleViewCardPictures } from '@/sharedReactive';
   export default {
     components: {OtcgDeck, OtcgCard, OtcgBoard},
     props: {
@@ -111,7 +112,7 @@ import { toggleViewCardPictures } from '@/sharedReactive';
         return 3 * this.smallerCardSize;
       },
       battlefieldSize() {
-        return this.smallerCardSize * 3 + this.deckPaddingSize * 2;
+        return this.smallerCardSize * 2.4 + this.deckPaddingSize * 2;
       },
       spellQueueSize() {
         return this.biggerCardSize + this.deckPaddingSize * 2;
@@ -140,6 +141,12 @@ import { toggleViewCardPictures } from '@/sharedReactive';
           let name = prompt("Type creating chip name");
           if (name != null) {
             this.ws.send(JSON.stringify({create_chip: {name: name, coordinates: {x: 0, y: 0}, destination: {index: -1, board: { name: "board" }}}}));
+          }
+      },
+      changeBoardImage() {
+          let url = prompt("Type URL of new image");
+          if (url != null) {
+            this.ws.send(JSON.stringify({change_board: {changes: {img_url: url}, target: { name: "board" }}}));
           }
       },
       toggleCardPictures() {
@@ -201,6 +208,7 @@ import { toggleViewCardPictures } from '@/sharedReactive';
 }
 
 .control-column {
+  padding: 2vh;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly; 

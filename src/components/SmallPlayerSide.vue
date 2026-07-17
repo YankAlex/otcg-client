@@ -92,6 +92,7 @@
         */
       }"
     />
+    <span class="player-number-span"> {{player}} </span>
     <OtcgDeck :pointer="{player: player, type: {name: 'heroes'}}"
       class="my-deck heroes"
       :size="cardSize"
@@ -206,6 +207,9 @@
       playerAreaHeight() {
         return ((this.cardSize * 4 / 3 + 2 * this.deckPaddingSize) + 2 * this.gapSize) + "px"
       },
+      playerSpanLeft() {
+        return this.deckSize * 2 + this.gapSize * 3 + this.deckPaddingSize + "px";
+      },
     }
   }
 </script>
@@ -218,6 +222,7 @@ section {
   justify-content: space-between;
   height: v-bind(playerAreaHeight);
 }
+
 
 .decks-layer {
   display: flex;
@@ -236,6 +241,15 @@ section {
 
 .hand {
   width: v-bind(handWidth);
+}
+
+.player-number-span {
+  position: absolute;
+  font-size: v-bind(deckHeight);
+  color: #fff2;
+  z-index: 0;
+  line-height: v-bind(deckHeight);
+  left: v-bind(playerSpanLeft);
 }
 
 </style>

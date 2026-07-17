@@ -6,6 +6,7 @@
     <div class="control-column">
       <button class="control-button" @click="createCardDialog"> Create </button>
       <button class="control-button" @click="reloadGame"> Reload </button>
+      <button class="control-button" @click="toggleCardPictures"> Toggle pictures </button>
     </div>
     <div class="fight-area" v-for="(battlefield, index) in battlefields">
       <OtcgDeck :pointer="{player: 3 - bottomPlayer, type: {battlefield: index}}"
@@ -54,6 +55,7 @@
   import type { PropType } from 'vue';
   import OtcgCard from './OtcgCard.vue';
   import OtcgDeck from './OtcgDeck.vue';
+  import { toggleViewCardPictures } from '@/sharedReactive';
   export default {
     components: {OtcgDeck, OtcgCard},
     props: {
@@ -135,6 +137,9 @@
       },
     },
     methods: {
+      toggleCardPictures() {
+        toggleViewCardPictures();
+      },
       createCardDialog() {
           let name = prompt("Type creating card name");
           if (name != null) {

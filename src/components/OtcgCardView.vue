@@ -22,7 +22,7 @@
         <span class="health"> {{card.health}} </span>
       </div>
       
-      <span class="colors" v-if="(card.colors ?? []).length > 0" v-html="marked(`\`${ (card.colors ?? []).join('\n') }\``)"/> 
+      <span class="colors" v-if="(card.colors ?? []).length > 0" v-html="marked(`\`${ (card.colors ?? []).join('`\n\n`') }\``)"/> 
 
       <img v-if="card.art_url != ''" class="art" :src="card.art_url"/>
 
@@ -182,7 +182,6 @@ import { getViewCardPictures } from '@/sharedReactive';
 
 code {
   font-family: 'FiraCode';
-  letter-spacing: -0.1vh;
 }
 
 em {

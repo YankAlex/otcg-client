@@ -39,7 +39,7 @@ export default {
         if (focusedCard == -1) focusedCard = deck.cards.length;
         let meFocused = focusedCard == index;
         return `left: ${(index + 0.5) * maxShift / (deck.cards.length)}px;
-                z-index: ${meFocused ? 1000 : deck.cards.length - Math.abs(index - focusedCard)};
+                z-index: ${meFocused ? 1000 : 10 + deck.cards.length - Math.abs(index - focusedCard)};
                 scale: ${1 + (scaling ? 0.2 / (Math.abs(index - focusedCard) + 1) : 0)};`;
       },
       spellQueueShift(index: number, focusedCard: number, deck: Pile, maxShift: number) {
@@ -170,39 +170,11 @@ export default {
     goInQueue() {
       this.ws.onmessage = (message) => {
         if (message.data == '"background_request"') {
-          /*
-          this.ws.send(`
-          {
-              "piles": {
-                  "main_deck": [
-                      "Jhin | murderous artist",
-                      "Deadly Flourish",
-                      "Honeyfruit",
-                      "Curtain Call",
-                      "Maduli the Gatekeeper"
-                  ],
-                  "mana_deck": [
-                      "Chaos Rune", "Chaos Rune",
-                      "Chaos Rune", "Chaos Rune",
-                      "Chaos Rune", "Chaos Rune",
-                      "Chaos Rune", "Chaos Rune",
-                      "Chaos Rune", "Chaos Rune",
-                      "Chaos Rune", "Chaos Rune"
-                  ],
-                  "special_zone": [
-                      "Yuumi | magical cat"
-                  ],
-                  "heroes": [
-                      "Scorn of the Moon"
-                  ],
-                  "base": [
-                      "Star Spring", "Star Spring"
-                  ]
-              }
-          }
-          `);
-          */
           this.ws.send(prompt("Which background play?") ?? "{}")
+          return;
+        }
+        if (message.data == '"choose_player"') {
+          this.ws.send(prompt("Choose player (1, 2 ...)?") ?? "{}")
           return;
         }
         let data = JSON.parse(message.data);
@@ -272,10 +244,17 @@ export default {
           let action = data.chip_changed;
           this.updateChip(action.target, action.new_chip);
         }
+        if (Object.hasOwn(data, "board_changed")) {
+          let action = data.board_changed;
+          this.updateBoard(action.target, action.new_board);
+        }
         if (Object.hasOwn(data, "chip_created")) {
           let action = data.chip_created;
           let destination: ChipPointer = action.destination;
           let chip: Chip = action.chip;
+          if (destination.index < 0) {
+              destination.index = destination.index % (this.board.chips.length + 1) + this.board.chips.length + 1;
+          }
           this.board.chips.splice(destination.index, 0, chip);
         }
         if (Object.hasOwn(data, "card_changed")) {
@@ -287,8 +266,23 @@ export default {
           let destination: CardPointer = action.destination;
           let card: Card = action.card;
           this.onPile(destination.pile, (pile: Pile) => {
+            if (destination.index < 0) {
+              destination.index = destination.index % (pile.cards.length + 1) + pile.cards.length + 1;
+            }
             pile.cards.splice(destination.index, 0, card);
           });
+        }
+        if (Object.hasOwn(data, "card_shuffled_to_pile")) {
+          console.log(data);
+          let action = data.card_shuffled_to_pile;
+          let source: CardPointer = action.source;
+          let destination: CardPointer = action.destination;
+          this.onPile(source.pile, (pile: Pile) => {
+            pile.cards.splice(source.index, 1);
+          });
+          this.ws.send(JSON.stringify({
+            "view_pile": destination,
+          }))
         }
         if (Object.hasOwn(data, "card_moved")) {
           let action = data.card_moved;

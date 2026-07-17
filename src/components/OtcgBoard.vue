@@ -1,14 +1,23 @@
 <template>
   <div 
     class="board"
-    @click.stop="moveChip"
+    @mouseup="moveChip"
+    @mouseleave="moveChip"
+    @mousemove="moveChipView"
+    @touchend="moveChip"
+    @touchmove="moveTouchChipView"
   >
     <img :src="board.img_url" class="board-background-image">
+    <div v-if="pickedChipPointer !== undefined" class="chip-preview"
+         :style="`top: ${(movingCoordinates.y - bigHalfSize) * sizeCoef}px; left: ${(movingCoordinates.x - bigHalfSize) * sizeCoef}px;`"
+    />
     <OtcgChip
       v-for="(chip, index) in board.chips"
-      @click.stop="pickChip(index)"
-      :style="'left: ' + ((chip.coordinates.x - halfSize) * sizeCoef) + 'px; top: ' + (chip.coordinates.y - halfSize) * sizeCoef + 'px;' "
+      :style="position(index)"
+      @mousedown.prevent="setMovingChip(index, $event)"
+      @touchstart="setTouchMovingChip(index, $event)"
       :picked="pickedChipPointer?.index == index"
+      :pointer="{index: index, board: boardPointer}"
       :chip
       :ws
     />
@@ -16,7 +25,7 @@
 </template>
 
 <script lang="ts">
-  import type { Board, BoardPointer, ChipPointer } from '@/structs';
+  import type { Board, BoardPointer, Chip, ChipPointer, Coordinates } from '@/structs';
   import type { PropType } from 'vue';
   import OtcgChip from './OtcgChip.vue';
 
@@ -43,7 +52,10 @@
     data() {
       return {
         pickedChipPointer: undefined as (ChipPointer | undefined),
-        halfSize: 3,
+        halfSize: 3.5,
+        bigHalfSize: 5.9,
+        movingCoordinates: {x: 0, y: 0},
+        mouseStart: {x: 0, y: 0},
       }
     },
     computed: {
@@ -58,6 +70,30 @@
       }
     },
     methods: {
+      position(index: number) {
+        return 'left: ' + (((this.board.chips[index]?.coordinates.x ?? 0) - this.halfSize) * this.sizeCoef) + 'px; top: ' + ((this.board.chips[index]?.coordinates.y ?? 0) - this.halfSize) * this.sizeCoef + 'px; transition: ease 0.5s;' 
+      },
+      setMovingChip(index: number, event: MouseEvent) {
+        this.pickedChipPointer = {
+          board: this.boardPointer,
+          index: index,
+        };
+        this.mouseStart.x = event.pageX;
+        this.mouseStart.y = event.pageY;
+        this.movingCoordinates.x = this.board.chips[index]?.coordinates.x ?? 0;
+        this.movingCoordinates.y = this.board.chips[index]?.coordinates.y ?? 0;
+      },
+      setTouchMovingChip(index: number, event: TouchEvent) {
+        if (event.touches.length != 1) return;
+        this.pickedChipPointer = {
+          board: this.boardPointer,
+          index: index,
+        };
+        this.mouseStart.x = event.touches[0]?.pageX ?? 0;
+        this.mouseStart.y = event.touches[0]?.pageY ?? 0;
+        this.movingCoordinates.x = this.board.chips[index]?.coordinates.x ?? 0;
+        this.movingCoordinates.y = this.board.chips[index]?.coordinates.y ?? 0;
+      },
       pickChip(index: number) {
         if (this.pickedChipPointer?.index == index) {
           this.pickedChipPointer = undefined;
@@ -68,7 +104,7 @@
           }
         }
       },
-      moveChip(event: MouseEvent) {
+      moveChip() {
         if (this.pickedChipPointer === undefined) {
         } else {
           this.ws?.send(JSON.stringify({
@@ -76,15 +112,37 @@
               target: this.pickedChipPointer,
               changes: {
                 coordinates: {
-                  x: event.offsetX / this.sizeCoef,
-                  y: event.offsetY / this.sizeCoef,
+                  x: this.movingCoordinates.x,
+                  y: this.movingCoordinates.y,
                 }
               },
             }
           }));
+          this.pickedChipPointer = undefined;
         }
       },
-    }
+      moveChipView(event: MouseEvent) {
+        if (this.pickedChipPointer === undefined) {
+        } else {
+          let realCord = this.board.chips[this.pickedChipPointer.index]?.coordinates ?? { x: 0, y: 0 };
+          // @ts-ignore
+          this.movingCoordinates.x = (event.pageX - this.mouseStart.x)  / this.sizeCoef + realCord.x;
+          // @ts-ignore
+          this.movingCoordinates.y = (event.pageY - this.mouseStart.y)  / this.sizeCoef + realCord.y;
+        }
+      },
+      moveTouchChipView(event: TouchEvent) {
+        if (this.pickedChipPointer === undefined) {
+        } else {
+          event.preventDefault();
+          let realCord = this.board.chips[this.pickedChipPointer.index]?.coordinates ?? { x: 0, y: 0 };
+          // @ts-ignore
+          this.movingCoordinates.x = (event.touches[0].pageX - this.mouseStart.x)  / this.sizeCoef + realCord.x;
+          // @ts-ignore
+          this.movingCoordinates.y = (event.touches[0].pageY - this.mouseStart.y)  / this.sizeCoef + realCord.y;
+        }
+      },
+    },
   }
 </script>
 
@@ -100,6 +158,19 @@
 .board {
   height: v-bind(boardHeight);
   position: relative;
+}
+
+.chip-preview {
+  position: absolute;
+  height: 8vh;
+  aspect-ratio: 1/1;
+  border: dashed #adff2f 0.5vh;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 }
 
 </style>
